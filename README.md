@@ -6,12 +6,12 @@ An agentic AI "doctor mind": a human-doctor character, deep medical knowledge, a
 
 ## Status
 
-Early stage. **Phase 0 (Vision & Scope) is drafted** and awaiting owner approval. No code exists yet.
+Early stage. **Phases 0 (Vision & Scope) and 1 (Doctor Character) are drafted** and awaiting owner approval. No code exists yet.
 
 | Phase | Description | Status |
 |---|---|---|
 | 0 | Vision & scope, safety policy | Draft |
-| 1 | Doctor character design | Not started |
+| 1 | Doctor character design | Draft |
 | 2 | Medical knowledge base | Not started |
 | 3 | Core reasoning model (RAG) | Not started |
 | 4 | Agentic layer | Not started |
@@ -64,7 +64,7 @@ AESCULAP-ASI/
 └── app/             UI and API
 ```
 
-Only `docs/` exists so far.
+Only `docs/` and `character/` exist so far.
 
 ## Planned Tech Stack
 

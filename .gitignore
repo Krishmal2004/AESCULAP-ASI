@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Secrets / env
+.env
+.env.*
+
+# Knowledge pipeline runtime data (raw cache, index, manifest, graph).
+# Never commit real patient data (docs/safety-policy.md section 5).
+knowledge/data/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

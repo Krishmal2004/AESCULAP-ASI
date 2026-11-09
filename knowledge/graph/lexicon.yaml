@@ -1,0 +1,23 @@
+# Starter entity lexicon: names and synonyms ONLY, no medical claims.
+# Replace or extend with a vocabulary derived from ICD / SNOMED CT / UMLS once those
+# licenses are approved (see sources.yaml). `codes` is optional, e.g. {icd10: "I10"}.
+# type must be one of: disease, symptom, drug, test
+entities:
+  - {id: "disease:hypertension", name: hypertension, type: disease, synonyms: ["high blood pressure"]}
+  - {id: "disease:type_2_diabetes", name: "type 2 diabetes", type: disease, synonyms: ["type 2 diabetes mellitus", "T2DM"]}
+  - {id: "disease:asthma", name: asthma, type: disease}
+  - {id: "disease:pneumonia", name: pneumonia, type: disease}
+  - {id: "disease:myocardial_infarction", name: "myocardial infarction", type: disease, synonyms: ["heart attack"]}
+  - {id: "symptom:chest_pain", name: "chest pain", type: symptom}
+  - {id: "symptom:cough", name: cough, type: symptom}
+  - {id: "symptom:fever", name: fever, type: symptom}
+  - {id: "symptom:headache", name: headache, type: symptom}
+  - {id: "symptom:dyspnea", name: dyspnea, type: symptom, synonyms: ["shortness of breath", "breathlessness"]}
+  - {id: "drug:metformin", name: metformin, type: drug}
+  - {id: "drug:lisinopril", name: lisinopril, type: drug}
+  - {id: "drug:aspirin", name: aspirin, type: drug, synonyms: ["acetylsalicylic acid"]}
+  - {id: "drug:warfarin", name: warfarin, type: drug}
+  - {id: "drug:ibuprofen", name: ibuprofen, type: drug}
+  - {id: "test:ecg", name: ECG, type: test, synonyms: ["electrocardiogram", "EKG"]}
+  - {id: "test:hba1c", name: HbA1c, type: test, synonyms: ["glycated hemoglobin", "glycosylated hemoglobin"]}
+  - {id: "test:chest_x_ray", name: "chest x-ray", type: test, synonyms: ["chest radiograph"]}

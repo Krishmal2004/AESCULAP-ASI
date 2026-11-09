@@ -18,6 +18,9 @@ jobs:
   secrets:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,7 +48,9 @@ jobs:
 
   dependency-review:
     name: Dependency review
-    if: github.event_name == 'pull_request'
+    # Needs Dependency graph + GitHub Advanced Security on private repos.
+    # Enable by setting repo variable ENABLE_DEPENDENCY_REVIEW=true.
+    if: github.event_name == 'pull_request' && (vars.ENABLE_DEPENDENCY_REVIEW == 'true' || !github.event.repository.private)
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -1,0 +1,4 @@
+# Optional heavy dependencies (not needed for tests or the offline baseline).
+# Install with: pip install -r knowledge/requirements-optional.txt
+chromadb>=0.5          # persistent vector store (AESCULAP_STORE=chroma)
+sentence-transformers>=3.0  # semantic embeddings (AESCULAP_EMBEDDER=sentence-transformers)

@@ -6,13 +6,13 @@ An agentic AI "doctor mind": a human-doctor character, deep medical knowledge, a
 
 ## Status
 
-Early stage. **Phases 0 (Vision & Scope) and 1 (Doctor Character) are drafted** and awaiting owner approval. No code exists yet.
+Early stage. **Phases 0 (Vision & Scope) and 1 (Doctor Character) are drafted** and awaiting owner approval. **Phase 2 (knowledge pipeline) is built** as a working baseline; see [`knowledge/README.md`](knowledge/README.md).
 
 | Phase | Description | Status |
 |---|---|---|
 | 0 | Vision & scope, safety policy | Draft |
 | 1 | Doctor character design | Draft |
-| 2 | Medical knowledge base | Not started |
+| 2 | Medical knowledge base | Baseline built (1 source live; others license-blocked) |
 | 3 | Core reasoning model (RAG) | Not started |
 | 4 | Agentic layer | Not started |
 | 5 | Safety, ethics & guardrails | Not started |
@@ -64,7 +64,17 @@ AESCULAP-ASI/
 └── app/             UI and API
 ```
 
-Only `docs/` and `character/` exist so far.
+Only `docs/`, `character/`, and `knowledge/` exist so far.
+
+## Quick Start (knowledge pipeline)
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+pytest
+python -m knowledge sources
+python -m knowledge ingest
+python -m knowledge search "renal impairment dosing"
+```
 
 ## Planned Tech Stack
 

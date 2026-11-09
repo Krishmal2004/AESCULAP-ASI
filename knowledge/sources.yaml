@@ -1,0 +1,115 @@
+# Source registry. A source is ingested only when ALL are true:
+#   enabled: true, an ingestor exists, license_status: approved, reviewed_by set.
+# license_status is a HUMAN decision. The notes below are a starting point for that
+# review, not legal advice. Confirm terms before approving anything.
+sources:
+  - id: openfda_labels
+    name: openFDA drug labels (SPL)
+    use: Drug indications, contraindications, warnings, interactions
+    license: openFDA data is public (CC0); see https://open.fda.gov/terms/
+    license_status: approved
+    reviewed_by: "draft-v0.1 (owner to confirm)"
+    enabled: true
+    ingestor: openfda
+    max_age_days: 30
+    params:
+      search: "_exists_:openfda.generic_name"
+      max_results: 100
+    notes: Labels are regulatory text, not clinical guidelines. Evidence level "regulatory-label".
+
+  - id: pubmed
+    name: PubMed abstracts (NCBI E-utilities)
+    use: Research literature
+    license: Abstracts carry publisher copyright; check NLM/NCBI terms before storing or redistributing
+    license_status: needs_review
+    enabled: false
+    ingestor: pubmed
+    max_age_days: 14
+    params:
+      query: "hypertension[Title] AND guideline[Publication Type]"
+      max_results: 200
+    notes: Set NCBI_EMAIL (and optionally NCBI_API_KEY). PMC open-access full text needs per-article license checks.
+
+  - id: who_guidelines
+    name: WHO guidelines (manually downloaded)
+    use: Standard of care
+    license: Most WHO publications are CC BY-NC-SA 3.0 IGO (non-commercial); verify per document
+    license_status: needs_review
+    enabled: false
+    ingestor: local_files
+    max_age_days: 180
+    params:
+      dir: knowledge/data/inbox/who
+    notes: Drop .md/.txt files with optional front matter (title, date, url, evidence_level, license).
+
+  - id: nice_guidelines
+    name: NICE guidelines (manually downloaded)
+    use: Standard of care
+    license: UK Open Content Licence is non-commercial; commercial reuse needs NICE permission
+    license_status: needs_review
+    enabled: false
+    ingestor: local_files
+    max_age_days: 180
+    params:
+      dir: knowledge/data/inbox/nice
+
+  - id: cdc_guidelines
+    name: CDC guidance (manually downloaded)
+    use: Standard of care
+    license: US government works are generally public domain; third-party content on pages may not be
+    license_status: needs_review
+    enabled: false
+    ingestor: local_files
+    max_age_days: 180
+    params:
+      dir: knowledge/data/inbox/cdc
+
+  - id: rxnorm
+    name: RxNorm
+    use: Drug naming and normalisation
+    license: Distributed under UMLS terms; some content restricted
+    license_status: needs_review
+    enabled: false
+    ingestor: null
+    notes: Planned. Needs an ingestor.
+
+  - id: drugbank
+    name: DrugBank
+    use: Interactions, dosing
+    license: Free for academic use only; commercial use needs a paid license
+    license_status: needs_review
+    enabled: false
+    ingestor: null
+    notes: Planned. Do not enable without the correct license tier.
+
+  - id: snomed_ct
+    name: SNOMED CT
+    use: Standard terminology
+    license: Requires a license (free in member countries); redistribution restricted
+    license_status: needs_review
+    enabled: false
+    ingestor: null
+
+  - id: icd
+    name: ICD-10 / ICD-11 (WHO) and ICD-10-CM (US)
+    use: Standard terminology
+    license: WHO ICD terms apply; ICD-10-CM (US) is public domain
+    license_status: needs_review
+    enabled: false
+    ingestor: null
+
+  - id: umls
+    name: UMLS Metathesaurus
+    use: Concept mapping across vocabularies
+    license: UMLS Metathesaurus License Agreement required
+    license_status: needs_review
+    enabled: false
+    ingestor: null
+
+  - id: textbooks
+    name: Medical textbooks
+    use: Foundational knowledge
+    license: Only licensed or openly licensed titles. None selected yet.
+    license_status: needs_review
+    enabled: false
+    ingestor: null

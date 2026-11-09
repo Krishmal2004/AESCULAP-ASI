@@ -1,0 +1,111 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 4 * * 2"   # Tuesdays 04:00 UTC
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  phi-guard:
+    name: PHI / sensitive data guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block likely real patient data files
+        run: |
+          # Repo must hold synthetic/public data only (safety-policy §5).
+          bad=$(git ls-files | grep -Ei '(^|/)(phi|patients?|ehr_export|real_data)[^/]*\.(csv|json|jsonl|xlsx|parquet|db|sqlite)$' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::Possible patient-data files committed:"; echo "$bad"; exit 1
+          fi
+          bad=$(git ls-files | grep -Ei '\.(dcm|mdb)$' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::DICOM/DB files not allowed in repo:"; echo "$bad"; exit 1
+          fi
+
+  dependency-review:
+    name: Dependency review
+    # Needs Dependency graph + GitHub Advanced Security on private repos.
+    # Enable by setting repo variable ENABLE_DEPENDENCY_REVIEW=true.
+    if: github.event_name == 'pull_request' && (vars.ENABLE_DEPENDENCY_REVIEW == 'true' || !github.event.repository.private)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript-typescript, actions]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Has source for this language?
+        id: src
+        run: |
+          case "${{ matrix.language }}" in
+            python) n=$(git ls-files '*.py' | wc -l);;
+            javascript-typescript) n=$(git ls-files '*.js' '*.jsx' '*.ts' '*.tsx' | wc -l);;
+            actions) n=$(git ls-files '.github/workflows/*' | wc -l);;
+          esac
+          if [ "$n" -gt 0 ]; then echo "go=true" >> "$GITHUB_OUTPUT"; else echo "go=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: github/codeql-action/init@v3
+        if: steps.src.outputs.go == 'true'
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/analyze@v3
+        if: steps.src.outputs.go == 'true'
+        with:
+          category: /language:${{ matrix.language }}
+
+  python-audit:
+    name: pip-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect requirements
+        id: r
+        run: |
+          if ls requirements*.txt >/dev/null 2>&1; then echo "go=true" >> "$GITHUB_OUTPUT"; else echo "go=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-python@v5
+        if: steps.r.outputs.go == 'true'
+        with:
+          python-version: "3.12"
+      - if: steps.r.outputs.go == 'true'
+        run: |
+          pip install pip-audit
+          for f in requirements*.txt; do pip-audit -r "$f"; done

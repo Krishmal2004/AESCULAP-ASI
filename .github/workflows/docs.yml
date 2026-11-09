@@ -1,0 +1,54 @@
+name: Docs
+
+on:
+  pull_request:
+    paths: ["**/*.md", ".github/workflows/docs.yml"]
+  push:
+    branches: [main]
+    paths: ["**/*.md"]
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  markdown:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: "**/*.md"
+          config: |
+            {
+              "default": true,
+              "MD013": false,
+              "MD033": false,
+              "MD036": false,
+              "MD041": false,
+              "MD024": { "siblings_only": true }
+            }
+
+  links:
+    name: Link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: --offline --no-progress "**/*.md"
+          fail: true
+
+  required-docs:
+    name: Required docs exist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          for f in README.md workflow.md docs/vision.md docs/safety-policy.md; do
+            test -f "$f" || { echo "::error::Missing $f"; exit 1; }
+          done

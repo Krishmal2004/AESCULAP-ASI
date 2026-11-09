@@ -1,0 +1,60 @@
+name: Evaluation
+
+# Phase 6: benchmark harness (MedQA, MedMCQA, PubMedQA, MMLU-medical).
+# Expensive, so manual + weekly rather than on every PR.
+
+on:
+  workflow_dispatch:
+    inputs:
+      benchmark:
+        description: "Benchmark to run"
+        type: choice
+        default: all
+        options: [all, medqa, medmcqa, pubmedqa, mmlu_medical]
+      sample_size:
+        description: "Questions per benchmark (0 = full set)"
+        default: "200"
+  schedule:
+    - cron: "0 3 * * 1"   # Mondays 03:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  benchmarks:
+    name: Run benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect harness
+        id: h
+        run: |
+          if [ -f eval/run.py ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-python@v5
+        if: steps.h.outputs.present == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        if: steps.h.outputs.present == 'true'
+        run: |
+          for f in requirements.txt requirements-dev.txt; do [ -f "$f" ] && pip install -r "$f"; done || true
+      - name: Run
+        if: steps.h.outputs.present == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python eval/run.py \
+            --benchmark "${{ inputs.benchmark || 'all' }}" \
+            --sample-size "${{ inputs.sample_size || '200' }}" \
+            --thresholds docs/vision.md \
+            --out eval-report
+      - uses: actions/upload-artifact@v4
+        if: steps.h.outputs.present == 'true'
+        with:
+          name: eval-report
+          path: eval-report/
+      - name: Not yet built
+        if: steps.h.outputs.present != 'true'
+        run: echo "eval/run.py not created yet (Phase 6) - nothing to run."

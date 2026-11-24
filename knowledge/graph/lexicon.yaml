@@ -21,3 +21,48 @@ entities:
   - {id: "test:ecg", name: ECG, type: test, synonyms: ["electrocardiogram", "EKG"]}
   - {id: "test:hba1c", name: HbA1c, type: test, synonyms: ["glycated hemoglobin", "glycosylated hemoglobin"]}
   - {id: "test:chest_x_ray", name: "chest x-ray", type: test, synonyms: ["chest radiograph"]}
+  # Common primary-care medicines (names/synonyms only).
+  - {id: "drug:paracetamol", name: paracetamol, type: drug, synonyms: ["acetaminophen"]}
+  - {id: "drug:naproxen", name: naproxen, type: drug}
+  - {id: "drug:diclofenac", name: diclofenac, type: drug}
+  - {id: "drug:ketorolac", name: ketorolac, type: drug}
+  - {id: "drug:etodolac", name: etodolac, type: drug}
+  - {id: "drug:codeine", name: codeine, type: drug}
+  - {id: "drug:tramadol", name: tramadol, type: drug}
+  - {id: "drug:amoxicillin", name: amoxicillin, type: drug}
+  - {id: "drug:azithromycin", name: azithromycin, type: drug}
+  - {id: "drug:atorvastatin", name: atorvastatin, type: drug}
+  - {id: "drug:simvastatin", name: simvastatin, type: drug}
+  - {id: "drug:amlodipine", name: amlodipine, type: drug}
+  - {id: "drug:ramipril", name: ramipril, type: drug}
+  - {id: "drug:losartan", name: losartan, type: drug}
+  - {id: "drug:valsartan", name: valsartan, type: drug}
+  - {id: "drug:bisoprolol", name: bisoprolol, type: drug}
+  - {id: "drug:furosemide", name: furosemide, type: drug}
+  - {id: "drug:spironolactone", name: spironolactone, type: drug}
+  - {id: "drug:digoxin", name: digoxin, type: drug}
+  - {id: "drug:clopidogrel", name: clopidogrel, type: drug}
+  - {id: "drug:dipyridamole", name: dipyridamole, type: drug}
+  - {id: "drug:apixaban", name: apixaban, type: drug}
+  - {id: "drug:rivaroxaban", name: rivaroxaban, type: drug}
+  - {id: "drug:glimepiride", name: glimepiride, type: drug}
+  - {id: "drug:insulin", name: insulin, type: drug}
+  - {id: "drug:levothyroxine", name: levothyroxine, type: drug}
+  - {id: "drug:omeprazole", name: omeprazole, type: drug}
+  - {id: "drug:esomeprazole", name: esomeprazole, type: drug}
+  - {id: "drug:ondansetron", name: ondansetron, type: drug}
+  - {id: "drug:metoclopramide", name: metoclopramide, type: drug}
+  - {id: "drug:sertraline", name: sertraline, type: drug}
+  - {id: "drug:citalopram", name: citalopram, type: drug}
+  - {id: "drug:fluoxetine", name: fluoxetine, type: drug}
+  - {id: "drug:olanzapine", name: olanzapine, type: drug}
+  - {id: "drug:lamotrigine", name: lamotrigine, type: drug}
+  - {id: "drug:gabapentin", name: gabapentin, type: drug}
+  - {id: "drug:salbutamol", name: salbutamol, type: drug, synonyms: ["albuterol"]}
+  - {id: "drug:prednisolone", name: prednisolone, type: drug}
+  - {id: "drug:loratadine", name: loratadine, type: drug}
+  - {id: "drug:cetirizine", name: cetirizine, type: drug}
+  - {id: "drug:allopurinol", name: allopurinol, type: drug}
+  - {id: "drug:tamsulosin", name: tamsulosin, type: drug}
+  - {id: "drug:varenicline", name: varenicline, type: drug}
+  - {id: "drug:nicotine", name: nicotine, type: drug}

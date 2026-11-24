@@ -6,105 +6,106 @@ An agentic AI "doctor mind": a human-doctor character, deep medical knowledge, a
 
 ## Status
 
-Early stage. **Phases 0 (Vision & Scope) and 1 (Doctor Character) are drafted** and awaiting owner approval. **Phase 2 (knowledge pipeline) is built** as a working baseline; see [`knowledge/README.md`](knowledge/README.md).
+All software phases (2 to 7) are built and tested. The remaining gates need people: owner and clinical sign-off (M1), a licensed benchmark dataset, a clinician review panel, and a pilot.
 
 | Phase | Description | Status |
 |---|---|---|
-| 0 | Vision & scope, safety policy | Draft |
-| 1 | Doctor character design | Draft |
-| 2 | Medical knowledge base | Baseline built (1 source live; others license-blocked) |
-| 3 | Core reasoning model (RAG) | Not started |
-| 4 | Agentic layer | Not started |
-| 5 | Safety, ethics & guardrails | Not started |
-| 6 | Evaluation | Not started |
-| 7 | Interface | Not started |
-| 8 | Pilot & iterate | Not started |
+| 0 | Vision & scope, safety policy | Draft, awaiting owner approval |
+| 1 | Doctor character design | Draft, awaiting owner approval |
+| 2 | Medical knowledge base | Built (openFDA live; guideline sources license-blocked) |
+| 3 | Core reasoning model (RAG) | Built: `core/` |
+| 4 | Agentic layer | Built: `agents/` |
+| 5 | Safety, ethics & guardrails | Built: `safety/` + red-team suite |
+| 6 | Evaluation | Harness built: `eval/`. MedQA-style benchmark and clinician panel not yet run |
+| 7 | Interface | Built: `app/` (web UI + API) |
+| 8 | Pilot & iterate | Plan and tooling ready: [`docs/pilot-plan.md`](docs/pilot-plan.md). Not started |
 
-See [`workflow.md`](workflow.md) for the full build plan and milestones.
+See [`workflow.md`](workflow.md) for the build plan and [`docs/architecture.md`](docs/architecture.md) for how it fits together.
 
-## Vision
-
-- **Primary user (assumed):** clinicians in general / primary-care medicine
-- **Secondary user:** patients, with stricter safety rules, after the clinician-facing system passes evaluation
-- **Approach:** narrow and safe first (one specialty, decision support), prove it works, then widen
-
-Details: [`docs/vision.md`](docs/vision.md)
-
-## Safety
-
-Safety rules bind every phase. In short, the system:
-
-- never gives a final diagnosis without a human clinician
-- never prescribes or sets individual doses
-- never makes a medical claim without a traceable source
-- always escalates emergencies and states its uncertainty
-- logs every step for audit
-
-Details: [`docs/safety-policy.md`](docs/safety-policy.md)
-
-## Planned Architecture
+## Architecture
 
 ```
-Input → Planner → Tools (RAG, drug checker, calculators, guidelines, read-only EHR)
-      → Critic → Safety Gate → Response
+Input → Triage (emergency, harm, scope) → Planner → Tools (RAG, drug interactions,
+calculators, labs, read-only record) → Specialists → Reasoner (Claude) → Critic
+→ Safety Gate → Response (citations, confidence, disclaimer) — every step audited
 ```
 
-## Planned Project Structure
+## Quick start
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+pytest                                    # offline, synthetic data only
+
+python -m knowledge ingest                # build the knowledge base (network)
+python -m app                             # web UI at http://127.0.0.1:8000
+python -m eval all                        # red-team, bias, faithfulness, benchmark gates
+```
+
+With no Anthropic credentials the system runs on a deterministic **offline extractive** backend that only quotes retrieved sources. To use Claude, set `ANTHROPIC_API_KEY` (or log in with `ant auth login`) and optionally `AESCULAP_LLM=claude`. Do not enter real patient data until a BAA/DPA and legal review are in place.
+
+Docker:
+
+```bash
+docker build -t aesculap . && docker run -p 8000:8000 -v aesculap-data:/data aesculap
+```
+
+## Project structure
 
 ```
 AESCULAP-ASI/
 ├── workflow.md      build plan
-├── docs/            vision, safety policy, architecture
-├── character/       persona, system prompt
-├── knowledge/       ingestion, embeddings, graph
-├── core/            reasoner, RAG
-├── agents/          planner, tools, critic, orchestrator
-├── safety/          guardrails, emergency rules
-├── eval/            benchmarks, red-team tests
-└── app/             UI and API
+├── docs/            vision, safety policy, architecture, pilot plan
+├── character/       persona, system prompt (loaded at runtime)
+├── knowledge/       ingestion, embeddings, vector store, graph
+├── core/            prompt, LLM backends, confidence, RAG reasoner
+├── agents/          planner, tools, specialists, critic, memory, audit, review, orchestrator
+├── safety/          emergency, risk tiers, scope, guardrails, grounding, fairness, privacy, gate
+├── eval/            red-team / bias cases, harness, benchmarks, clinician panel
+├── app/             FastAPI API and web UI
+└── tests/           tests for phases 3–7 (knowledge/tests covers phase 2)
 ```
 
-Only `docs/`, `character/`, and `knowledge/` exist so far.
+## Safety
 
-## Quick Start (knowledge pipeline)
+Safety rules bind every phase. They are enforced in code, not only in the prompt. The system:
 
-```bash
-pip install -r requirements.txt -r requirements-dev.txt
-pytest
-python -m knowledge sources
-python -m knowledge ingest
-python -m knowledge search "renal impairment dosing"
-```
+- never gives a final diagnosis without a human clinician
+- never prescribes or sets individual doses
+- never makes a medical claim without a traceable source (ungrounded answers are blocked)
+- always escalates emergencies first and states its uncertainty
+- logs every step for audit, redacted
 
-## Planned Tech Stack
+Details: [`docs/safety-policy.md`](docs/safety-policy.md). Release needs **every** gate in `docs/vision.md` §6 to be measured and passed; `python -m eval all` reports which gates are still unmeasured.
 
-| Layer | Option |
+## Tech stack
+
+| Layer | Choice |
 |---|---|
-| LLM | Claude API (or open-weight alternative) |
-| Agent framework | Claude Agent SDK / LangGraph |
-| Vector DB | Qdrant or pgvector |
-| Graph DB | Neo4j |
+| LLM | Claude (`claude-opus-5-5`) through the Anthropic SDK, with an offline extractive fallback |
+| Orchestration | Code-controlled workflow (`agents/orchestrator.py`) |
+| Vector store | In-memory/JSON (default) or Chroma |
+| Graph | networkx; Cypher export for Neo4j |
 | Backend | Python + FastAPI |
-| Frontend | Next.js |
-| Infra | Docker, GitHub Actions |
+| Frontend | Static HTML/JS served by FastAPI |
+| Infra | Docker |
 
 ## Milestones
 
 - [ ] M1: Persona + safety policy approved
-- [ ] M2: Knowledge base searchable with citations
-- [ ] M3: Single agent answers medical questions with sources
-- [ ] M4: Multi-agent system with critic and safety gate
-- [ ] M5: Benchmarks passed + clinician review
+- [x] M2: Knowledge base searchable with citations
+- [x] M3: Single agent answers medical questions with sources
+- [x] M4: Multi-agent system with critic and safety gate
+- [ ] M5: Benchmarks passed + clinician review (harness ready; needs dataset and panel)
 - [ ] M6: Pilot launched
 
 ## Data & Privacy
 
-Development and evaluation use synthetic or public de-identified data only until legal review is complete. No user data is used for training without explicit consent.
+Development and evaluation use synthetic or public de-identified data only until legal review is complete. No user data is used for training. Long-term memory needs explicit consent and can be erased with `DELETE /api/memory/{user_id}`.
 
 ## Contributing
 
-Changes to the safety policy require approval from the project owner and a clinical advisor. Safety incidents get a documented review and a new regression test.
+Changes to the safety policy need approval from the project owner and a clinical advisor. Each safety incident gets a documented review and a new red-team case in `eval/cases/redteam.yaml`.
 
 ## License
 
-Not yet chosen. Knowledge sources will each be license-checked before use (Phase 2).
+Not yet chosen. Each knowledge source is license-checked before use (`knowledge/sources.yaml`).

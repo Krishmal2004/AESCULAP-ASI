@@ -7,7 +7,7 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
-testpaths = ["knowledge/tests"]
+testpaths = ["knowledge/tests", "tests"]
 markers = [
     "safety: safety-related tests",
     "critical: critical safety tests that must always pass",

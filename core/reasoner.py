@@ -63,7 +63,9 @@ class Reasoner:
                 key = item.get("chunk_id") or item.get("text", "")[:80]
                 if key not in merged or item["score"] > merged[key]["score"]:
                     merged[key] = dict(item)
-        ranked = sorted(merged.values(), key=lambda e: e["score"], reverse=True)[: (k or self.k) + 3]
+        ranked = sorted(merged.values(), key=lambda e: e["score"], reverse=True)[
+            : (k or self.k) + 3
+        ]
         for i, item in enumerate(ranked, start=1):
             item["id"] = f"S{i}"
         return ranked

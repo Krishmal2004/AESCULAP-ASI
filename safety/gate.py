@@ -10,7 +10,7 @@ Decisions:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 from safety.disclaimer import ensure_disclaimer
 from safety.emergency import escalation_message
@@ -19,7 +19,7 @@ from safety.guardrails import check_output
 from safety.risk import RiskAssessment, RiskTier
 
 
-class Decision(str, Enum):
+class Decision(StrEnum):
     ALLOW = "allow"
     BLOCK = "block"
     REVIEW = "review"

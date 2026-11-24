@@ -26,7 +26,9 @@ _JARGON = re.compile(
     r"|pharmacokinetic|nephrotoxic|hepatotoxic|sequelae|comorbidit|titrat)\w*",
     re.I,
 )
-_NEXT_STEP = re.compile(r"next step|see a|speak (to|with)|contact|call|visit|appointment|clinician", re.I)
+_NEXT_STEP = re.compile(
+    r"next step|see a|speak (to|with)|contact|call|visit|appointment|clinician", re.I
+)
 
 
 @dataclass

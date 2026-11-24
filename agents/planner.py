@@ -59,10 +59,14 @@ _SYMPTOM = re.compile(
     r"|breath|headache|bleed|itch|lump|numb|palpitation|symptom|feel(ing)? (sick|unwell))\w*",
     re.I,
 )
-_DRUG_Q = re.compile(r"\b(drug|medication|medicine|tablet|pill|interact|side effect|dose|take)\w*", re.I)
+_DRUG_Q = re.compile(
+    r"\b(drug|medication|medicine|tablet|pill|interact|side effect|dose|take)\w*", re.I
+)
 _RISK_Q = re.compile(r"\b(risk|score|likelihood|chance|stratif)\w*", re.I)
 _DIAG_Q = re.compile(r"\b(what is wrong|could it be|do i have|cause|differential|diagnos)\w*", re.I)
-_DURATION = re.compile(r"\b(\d+|a|an|few|couple|several)\s*(hour|day|week|month|year)s?\b|since|for ages", re.I)
+_DURATION = re.compile(
+    r"\b(\d+|a|an|few|couple|several)\s*(hour|day|week|month|year)s?\b|since|for ages", re.I
+)
 
 
 def make_plan(question: str, patient_context: Mapping[str, Any] | None = None) -> Plan:
@@ -99,12 +103,17 @@ def make_plan(question: str, patient_context: Mapping[str, Any] | None = None) -
 
     age = ctx.get("age") or _num(r"\b(\d{2,3})[- ]?(?:years?|yrs?|yo|y/o)\b", text)
     sex = ctx.get("sex") or (
-        "female" if re.search(r"\b(female|woman|\d+\s?f)\b", text, re.I)
-        else "male" if re.search(r"\b(male|man|\d+\s?m)\b", text, re.I) else None
+        "female"
+        if re.search(r"\b(female|woman|\d+\s?f)\b", text, re.I)
+        else "male"
+        if re.search(r"\b(male|man|\d+\s?m)\b", text, re.I)
+        else None
     )
     weight = ctx.get("weight_kg") or _num(r"(\d{2,3}(?:\.\d+)?)\s?kg\b", text)
     height = ctx.get("height_cm") or _num(r"(\d{3}(?:\.\d+)?)\s?cm\b", text)
-    creat = ctx.get("creatinine_mg_dl") or _num(r"creatinine (?:of |is )?(\d+(?:\.\d+)?)\s?mg/dl", text)
+    creat = ctx.get("creatinine_mg_dl") or _num(
+        r"creatinine (?:of |is )?(\d+(?:\.\d+)?)\s?mg/dl", text
+    )
     sbp = ctx.get("sbp")
     dbp = ctx.get("dbp")
     bp = re.search(r"\b(\d{2,3})/(\d{2,3})\s?(mmhg)?\b", text, re.I)
@@ -124,17 +133,30 @@ def make_plan(question: str, patient_context: Mapping[str, Any] | None = None) -
                 {
                     "age": age,
                     "sex": sex,
-                    "hypertension": bool(re.search(r"hypertension|high blood pressure", text, re.I)),
+                    "hypertension": bool(
+                        re.search(r"hypertension|high blood pressure", text, re.I)
+                    ),
                     "diabetes": bool(re.search(r"diabet", text, re.I)),
                     "chf": bool(re.search(r"heart failure", text, re.I)),
                     "stroke_tia": bool(re.search(r"stroke|\bTIA\b", text, re.I)),
-                    "vascular": bool(re.search(r"vascular disease|myocardial infarction|PAD", text, re.I)),
+                    "vascular": bool(
+                        re.search(r"vascular disease|myocardial infarction|PAD", text, re.I)
+                    ),
                 },
             )
         )
     if re.search(r"pneumonia|CURB", text, re.I) and age:
-        plan.steps.append(Step("curb65", {"age": age, "confusion": bool(re.search(r"confus", text, re.I)),
-                                          "sbp": sbp, "dbp": dbp}))
+        plan.steps.append(
+            Step(
+                "curb65",
+                {
+                    "age": age,
+                    "confusion": bool(re.search(r"confus", text, re.I)),
+                    "sbp": sbp,
+                    "dbp": dbp,
+                },
+            )
+        )
 
     # Ask before assuming (max 3, persona rule 1)
     if symptomatic and not age:

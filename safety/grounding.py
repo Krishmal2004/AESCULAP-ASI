@@ -9,8 +9,26 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from safety.disclaimer import DISCLAIMER_MARKER
+
+
+def _drug_names() -> list[str]:
+    """Drug names and synonyms from the knowledge lexicon (any mention is a medical claim)."""
+    import yaml
+
+    path = Path(__file__).resolve().parent.parent / "knowledge" / "graph" / "lexicon.yaml"
+    try:
+        raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except OSError:
+        return ["aspirin"]
+    names = []
+    for e in raw.get("entities", []):
+        if e.get("type") == "drug":
+            names += [e["name"], *e.get("synonyms", [])]
+    return [re.escape(n) for n in names] or ["aspirin"]
+
 
 _SENTENCE = re.compile(r"(?<=[.!?])\s+|\n+")
 _CITE = re.compile(r"\[(S\d+)\]")
@@ -19,7 +37,10 @@ _CLINICAL = re.compile(
     r"|interact|side effect|adverse|risk|cause[sd]?|associated|indicated|symptom|diagnos"
     r"|infection|disease|syndrome|condition|blood|kidney|renal|liver|hepatic|heart|cardiac"
     r"|pressure|glucose|insulin|antibiotic|inflammation|warning|bleeding|level|study|trial"
-    r"|guideline|recommend)\w*",
+    r"|guideline|recommend|helps?|reliev|cures?|prevent|effective|harmful|safe to"
+    r"|\w+(pril|sartan|olol|statin|azole|mycin|cillin|floxacin|prazole|xaban|gliptin|formin"
+    r"|profen|proxen|zepam|azolam|tidine|triptan|caine|oxetine|aline|amine|done|codone))\w*"
+    r"|\b(" + "|".join(sorted(_drug_names(), key=len, reverse=True)) + r")\b",
     re.IGNORECASE,
 )
 _EXEMPT = re.compile(
@@ -27,7 +48,7 @@ _EXEMPT = re.compile(
     r"|suggested next steps?|tool results?|calculated values?)\b"
     r"|^\s*(\*\*)?(summary|differential|red flags?|evidence)[^:]*:\**\s*$"
     r"|\(calculated\)"
-    r"|couldn'?t find supporting evidence|i'?m not sure|not covered by|please (call|contact|see|speak)"
+    r"|couldn'?t find supporting evidence|i'?m not sure|not covered by|please (call|contact|see|speak)"  # noqa: E501
     r"|see a (clinician|doctor|pharmacist)|speak (to|with) (a|your) (clinician|doctor|pharmacist)"
     r"|seek (urgent|emergency|medical) (care|help)|call .{0,30}emergency|can'?t (examine|assess)"
     r"|cannot (examine|assess)|ask your (doctor|clinician|pharmacist)|\?\s*$",

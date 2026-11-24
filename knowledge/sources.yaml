@@ -17,6 +17,26 @@ sources:
       max_results: 100
     notes: Labels are regulatory text, not clinical guidelines. Evidence level "regulatory-label".
 
+  - id: openfda_core_drugs
+    name: openFDA drug labels, common primary-care medicines
+    use: Targeted labels for medicines named in graph/lexicon.yaml (the generic sample above is random)
+    license: openFDA data is public (CC0); see https://open.fda.gov/terms/
+    license_status: approved
+    reviewed_by: "draft-v0.1 (same dataset and terms as openfda_labels; owner to confirm)"
+    enabled: true
+    ingestor: openfda
+    max_age_days: 30
+    params:
+      search: >-
+        openfda.generic_name:(metformin OR lisinopril OR aspirin OR warfarin OR ibuprofen
+        OR acetaminophen OR naproxen OR diclofenac OR codeine OR tramadol OR amoxicillin
+        OR azithromycin OR atorvastatin OR simvastatin OR amlodipine OR ramipril OR losartan
+        OR bisoprolol OR furosemide OR spironolactone OR digoxin OR clopidogrel OR apixaban
+        OR rivaroxaban OR insulin OR levothyroxine OR omeprazole OR sertraline OR citalopram
+        OR fluoxetine OR gabapentin OR albuterol OR prednisolone OR cetirizine OR allopurinol)
+      max_results: 400
+    notes: Run `python -m knowledge ingest --source openfda_core_drugs`. Needs network access.
+
   - id: pubmed
     name: PubMed abstracts (NCBI E-utilities)
     use: Research literature

@@ -13,11 +13,12 @@ from __future__ import annotations
 import os
 import re
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from safety.guardrails import check_output
 
 DEFAULT_MODEL = "claude-opus-5-5"
+Effort = Literal["low", "medium", "high", "xhigh", "max"]
 
 
 @dataclass
@@ -52,7 +53,7 @@ class LLM(Protocol):
 class ClaudeLLM:
     name = "claude"
 
-    def __init__(self, model: str | None = None, effort: str = "high") -> None:
+    def __init__(self, model: str | None = None, effort: Effort = "high") -> None:
         import anthropic  # optional dependency at import time
 
         self._anthropic = anthropic
@@ -81,9 +82,45 @@ class ClaudeLLM:
 _WORD = re.compile(r"[a-z0-9]+")
 _SENT = re.compile(r"(?<=[.!?])\s+|\n+")
 _STOP = {
-    "the", "a", "an", "and", "or", "of", "to", "in", "is", "are", "for", "with", "on", "what",
-    "how", "my", "i", "me", "do", "does", "can", "it", "be", "this", "that", "about", "should",
-    "have", "has", "when", "which", "you", "your", "at", "as", "by", "from", "any", "there",
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "of",
+    "to",
+    "in",
+    "is",
+    "are",
+    "for",
+    "with",
+    "on",
+    "what",
+    "how",
+    "my",
+    "i",
+    "me",
+    "do",
+    "does",
+    "can",
+    "it",
+    "be",
+    "this",
+    "that",
+    "about",
+    "should",
+    "have",
+    "has",
+    "when",
+    "which",
+    "you",
+    "your",
+    "at",
+    "as",
+    "by",
+    "from",
+    "any",
+    "there",
 }
 
 
@@ -130,14 +167,17 @@ class OfflineLLM:
         seen: set[str] = set()
         focus = [t.lower() for t in request.focus_terms]
         uncovered = [
-            t for t in focus
+            t
+            for t in focus
             if not any(t in str(ev.get("title", "")).lower() for ev in request.evidence)
         ]
         for ev in request.evidence:
             title = str(ev.get("title", "")).lower()
             if focus and not any(t in title for t in focus):
                 continue  # evidence about a different drug is not evidence for this question
-            for sent in _best_sentences(request.search_text or request.question, ev.get("text", "")):
+            for sent in _best_sentences(
+                request.search_text or request.question, ev.get("text", "")
+            ):
                 if sent.lower() not in seen:
                     seen.add(sent.lower())
                     findings.append(f"{sent} [{ev['id']}]")
@@ -151,7 +191,8 @@ class OfflineLLM:
         if uncovered:
             lines.append(
                 "I couldn't find supporting evidence in my sources about: "
-                + ", ".join(uncovered) + "."
+                + ", ".join(uncovered)
+                + "."
             )
         if request.confidence == "insufficient" or not findings:
             lines.append(
@@ -186,7 +227,8 @@ class OfflineLLM:
         )
         if request.language and request.language != "en":
             lines.insert(
-                0, f"(Offline mode answers in English only; requested language: {request.language}.)"
+                0,
+                f"(Offline mode answers in English only; requested language: {request.language}.)",
             )
         return "\n".join(line for line in lines if line is not None)
 
@@ -199,7 +241,8 @@ def get_llm(name: str | None = None) -> LLM:
     if choice == "claude":
         return ClaudeLLM()
     has_creds = any(
-        os.environ.get(v) for v in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_PROFILE")
+        os.environ.get(v)
+        for v in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_PROFILE")
     )
     if has_creds:
         try:

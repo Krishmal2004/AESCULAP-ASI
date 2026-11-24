@@ -52,4 +52,6 @@ def assess_confidence(evidence: list[dict[str, Any]], min_score: float = 0.15) -
         level = "moderate"
     else:
         level = "low"
-    return Confidence(level, score, f"{len(relevant)} relevant source(s); top-weighted score {score}")
+    return Confidence(
+        level, score, f"{len(relevant)} relevant source(s); top-weighted score {score}"
+    )

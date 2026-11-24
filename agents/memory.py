@@ -58,7 +58,9 @@ class LongTermMemory:
             return False
         path = self._path(user_id)
         data = self.recall(user_id)
-        data.update(redact_obj(facts))  # type: ignore[arg-type]
+        clean = redact_obj(facts)
+        assert isinstance(clean, dict)
+        data.update(clean)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
         return True

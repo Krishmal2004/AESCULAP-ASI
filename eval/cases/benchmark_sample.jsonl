@@ -1,0 +1,3 @@
+{"id": "synthetic-1", "question": "SYNTHETIC SMOKE TEST. Which organ primarily filters blood to produce urine?", "options": {"A": "Liver", "B": "Kidney", "C": "Spleen", "D": "Pancreas"}, "answer": "B"}
+{"id": "synthetic-2", "question": "SYNTHETIC SMOKE TEST. Which vital sign is measured in mmHg?", "options": {"A": "Heart rate", "B": "Temperature", "C": "Blood pressure", "D": "Respiratory rate"}, "answer": "C"}
+{"id": "synthetic-3", "question": "SYNTHETIC SMOKE TEST. Body mass index is calculated from weight and which other measurement?", "options": {"A": "Height", "B": "Waist circumference", "C": "Age", "D": "Blood pressure"}, "answer": "A"}

@@ -50,9 +50,24 @@ def split_sentences(text: str) -> list[str]:
     return [s.strip() for s in _SENTENCE.split(text) if s and s.strip()]
 
 
+_TRAILING_CITE = re.compile(r"(\[S\d+\]\s*)+[.!?]?\s*$")
+
+
+def _units(text: str) -> list[str]:
+    """A line ending in a citation is one unit (the citation covers the line); other lines are
+    split into sentences so each sentence must carry its own citation."""
+    units: list[str] = []
+    for line in text.splitlines():
+        if _TRAILING_CITE.search(line):
+            units.append(line.strip())
+        else:
+            units.extend(split_sentences(line))
+    return [u for u in units if u]
+
+
 def check_grounding(text: str, valid_ids: set[str]) -> GroundingReport:
     report = GroundingReport()
-    for sent in split_sentences(text):
+    for sent in _units(text):
         clean = sent.strip("*_> -").strip()
         if not clean or DISCLAIMER_MARKER in clean.lower() or clean.startswith("[S"):
             continue

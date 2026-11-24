@@ -11,6 +11,7 @@ from core.clinical import task_instructions
 from core.confidence import Confidence, assess_confidence
 from core.llm import LLM, ReasoningRequest
 from core.prompt import normalise_mode, render_system_prompt
+from safety.fairness import neutralise
 from safety.guardrails import contains_injection
 
 Retriever = Callable[..., list[dict[str, Any]]]
@@ -80,10 +81,12 @@ class Reasoner:
         critic_feedback: list[str] | None = None,
         locale: str | None = None,
         language: str = "en",
+        focus_terms: list[str] | None = None,
+        search_text: str | None = None,
     ) -> ReasonerResult:
         mode = normalise_mode(mode)
         if evidence is None:
-            evidence = self.retrieve([question])
+            evidence = self.retrieve([neutralise(question)])
         confidence = assess_confidence(evidence, self.min_score)
         tool_results = tool_results or []
         system = render_system_prompt(
@@ -124,5 +127,7 @@ class Reasoner:
             missing_info=missing_info or [],
             critic_feedback=critic_feedback or [],
             language=language,
+            focus_terms=focus_terms or [],
+            search_text=search_text or neutralise(question),
         )
         return ReasonerResult(self.llm.complete(request), evidence, confidence, request)

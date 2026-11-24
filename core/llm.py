@@ -32,6 +32,8 @@ class ReasoningRequest:
     missing_info: list[str] = field(default_factory=list)
     critic_feedback: list[str] = field(default_factory=list)
     language: str = "en"
+    focus_terms: list[str] = field(default_factory=list)  # e.g. drugs named in the question
+    search_text: str = ""  # demographic-neutral text used for evidence ranking
 
 
 class LLMRefusal(RuntimeError):
@@ -89,11 +91,18 @@ def _terms(text: str) -> set[str]:
     return {w for w in _WORD.findall(text.lower()) if w not in _STOP and len(w) > 2}
 
 
+_XREF = re.compile(
+    r"\[[^\]]*\]|\(\s*(see\b[^)]*|\d+(\.\d+)*\s*)\)|^\s*\d+(\.\d+)*\s+|\b\d+\.\d+\s+(?=[A-Z])", re.I
+)
+_NON_TEXT = re.compile("\\(\\s*\\)|[^\\x20-\\x7e\\u00a0-\\u024f]")
+
+
 def _best_sentences(question: str, text: str, n: int = 2) -> list[str]:
     q = _terms(question)
     scored: list[tuple[int, int, str]] = []
     for i, raw in enumerate(_SENT.split(text)):
-        sent = raw.strip().lstrip("#").strip()
+        sent = " ".join(_XREF.sub(" ", raw.strip().lstrip("#")).split())
+        sent = _NON_TEXT.sub("", sent).strip(" .;,:") + "."
         if len(sent) < 25 or len(sent) > 400:
             continue
         if not check_output(sent).ok:  # never quote dosing/diagnosis-shaped text verbatim
@@ -118,9 +127,20 @@ class OfflineLLM:
             lines.append("**Summary (extractive, offline mode):**")
 
         findings: list[str] = []
+        seen: set[str] = set()
+        focus = [t.lower() for t in request.focus_terms]
+        uncovered = [
+            t for t in focus
+            if not any(t in str(ev.get("title", "")).lower() for ev in request.evidence)
+        ]
         for ev in request.evidence:
-            for sent in _best_sentences(request.question, ev.get("text", "")):
-                findings.append(f"{sent} [{ev['id']}]")
+            title = str(ev.get("title", "")).lower()
+            if focus and not any(t in title for t in focus):
+                continue  # evidence about a different drug is not evidence for this question
+            for sent in _best_sentences(request.search_text or request.question, ev.get("text", "")):
+                if sent.lower() not in seen:
+                    seen.add(sent.lower())
+                    findings.append(f"{sent} [{ev['id']}]")
             if len(findings) >= 4:
                 break
 
@@ -128,6 +148,11 @@ class OfflineLLM:
             f"{t['tool']}: {t['summary']}" for t in request.tool_results if t.get("summary")
         ]
 
+        if uncovered:
+            lines.append(
+                "I couldn't find supporting evidence in my sources about: "
+                + ", ".join(uncovered) + "."
+            )
         if request.confidence == "insufficient" or not findings:
             lines.append(
                 "I'm not sure here. I couldn't find supporting evidence for that in my sources, "

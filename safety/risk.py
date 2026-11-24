@@ -22,7 +22,8 @@ class RiskTier(IntEnum):
 
 
 _HIGH = re.compile(
-    r"\b(dose|dosage|dosing|how much .{0,30}(take|give)|mg\b|interact|interaction|together with"
+    r"\b(can i (take|use|have|drink)|(take|use|mix) \w+ (with|and|while)"
+    r"|dose|dosage|dosing|how much .{0,30}(take|give)|mg\b|interact|interaction|together with"
     r"|combine|mix .{0,20} with|stop taking|start taking|switch (from|to)|increase my|decrease my"
     r"|critical (value|result)|abnormal (result|lab)|do i have|diagnos)"
 )

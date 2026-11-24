@@ -30,4 +30,5 @@ TASKS: dict[str, str] = {
 
 
 def task_instructions(tasks: list[str]) -> str:
-    return "\n".join(TASKS[t] for t in tasks if t in TASKS) or TASKS["education"]
+    """Known task keys expand to instructions; other strings (specialist focus) pass through."""
+    return "\n".join(TASKS.get(t, t) for t in tasks) or TASKS["education"]

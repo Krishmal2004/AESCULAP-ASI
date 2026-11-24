@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 # ---------------------------------------------------------------- input checks
 
 _INJECTION = re.compile(
-    r"(ignore|disregard|forget|override) (all |any |the |your )?(previous|prior|above|earlier|system)"
+    r"(ignore|disregard|forget|override) (all |any |the |your )?(previous|prior|above|earlier|system)"  # noqa: E501
     r"( instructions| rules| prompt)?"
     r"|you are (now )?(a |an )?(real|licensed|human) (doctor|physician)"
     r"|pretend (to be|you are) (a |an )?(real |licensed |human )?(doctor|physician)"
@@ -86,8 +86,10 @@ _PRESCRIBING = [
 _FINAL_DIAGNOSIS = [
     re.compile(p, re.IGNORECASE)
     for p in (
-        r"\byou (definitely |certainly |clearly )?have (a |an )?(?!any\b|to\b|a few\b|some\b|questions?\b)"
-        r"[a-z]+(itis|osis|emia|oma|pathy|disease|syndrome|infection|diabetes|cancer|failure)\b",
+        r"\byou (definitely |certainly |clearly )?have (a |an )?(?!any\b|to\b|a few\b|some\b|questions?\b)"  # noqa: E501
+        r"([a-z]+(itis|osis|emia|aemia|oma|pathy|monia|disease|syndrome|infection|failure)"
+        r"|diabetes|cancer|asthma|migraine|flu|influenza|covid(-19)?|gout|sepsis|angina"
+        r"|hypertension|depression|anxiety disorder|a stroke|an ulcer|a tumou?r)\b",
         r"\bmy diagnosis is\b",
         r"\bthe diagnosis is\b",
         r"\byou are suffering from\b",

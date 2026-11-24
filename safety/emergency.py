@@ -33,7 +33,7 @@ _PATTERNS: dict[str, list[str]] = {
         r"can'?t breathe|cannot breathe|unable to breathe",
         r"(severe|extreme|serious) (shortness of breath|breathlessness|difficulty breathing)",
         r"struggling to breathe|gasping for (air|breath)",
-        r"(lips|face) (are |is |turning )?(blue|grey|gray)",
+        r"(lips|face|skin) (are |is )?(turning |going )?(blue|grey|gray)",
         r"choking",
     ],
     "anaphylaxis": [
@@ -59,7 +59,8 @@ _PATTERNS: dict[str, list[str]] = {
     "self_harm": [
         r"(kill|hurt|harm) (myself|me)\b",
         r"suicid",
-        r"end (my|it all|my life)",
+        r"\bend(ing)? (it all|my (own )?life|myself)",
+        r"take my (own )?life",
         r"(want|wanting|going) to die",
         r"don'?t want to (live|be alive|wake up)",
         r"self[- ]harm|cutting myself",

@@ -2,6 +2,8 @@
 
 > An agentic AI "doctor mind": human-doctor character + deep medical knowledge + autonomous reasoning.
 > **Scope:** clinical decision support with human oversight. It does not replace a licensed doctor.
+>
+> Legend: `[x]` built and tested · `[~]` tooling built, needs human action · `[ ]` open
 
 ---
 
@@ -42,11 +44,11 @@ Define the human-doctor persona.
 | Medical textbooks (licensed or open) | Foundational knowledge |
 
 Steps:
-- [ ] Collect and license-check each source
-- [ ] Clean and chunk documents, keeping metadata (source, date, evidence level)
-- [ ] Build embeddings and a vector database (Qdrant / pgvector / Chroma)
-- [ ] Build a knowledge graph (diseases ↔ symptoms ↔ drugs ↔ tests)
-- [ ] Set up a refresh pipeline so knowledge stays current
+- [~] Collect and license-check each source (openFDA approved in draft; others await review)
+- [x] Clean and chunk documents, keeping metadata (source, date, evidence level)
+- [x] Build embeddings and a vector database (Qdrant / pgvector / Chroma)
+- [x] Build a knowledge graph (diseases ↔ symptoms ↔ drugs ↔ tests)
+- [x] Set up a refresh pipeline so knowledge stays current
 
 **Output:** `knowledge/` pipeline, vector DB, graph DB
 
@@ -54,11 +56,11 @@ Steps:
 
 ## Phase 3 — Core Reasoning Model
 
-- [ ] Choose the base model (latest Claude model via API, or an open-weight model)
-- [ ] Build RAG: retrieve evidence, then answer with citations
-- [ ] Add clinical reasoning prompts: differential diagnosis, red-flag screening, risk stratification
-- [ ] Add uncertainty calibration: the model says "I'm not sure" when evidence is weak
-- [ ] Optional: fine-tune or add adapters on medical Q&A data
+- [x] Choose the base model (latest Claude model via API, or an open-weight model)
+- [x] Build RAG: retrieve evidence, then answer with citations
+- [x] Add clinical reasoning prompts: differential diagnosis, red-flag screening, risk stratification
+- [x] Add uncertainty calibration: the model says "I'm not sure" when evidence is weak
+- [ ] Optional: fine-tune or add adapters on medical Q&A data (deferred: RAG first)
 
 **Output:** `core/reasoner.py`, evaluation baseline
 
@@ -96,10 +98,10 @@ Patient/Clinician input
    Final response
 ```
 
-- [ ] Build the planner, tool executor, critic, and safety gate
-- [ ] Add multi-agent specialists (cardiology, neurology, pharmacology) coordinated by an orchestrator
-- [ ] Add memory: patient context within a session, consented long-term memory
-- [ ] Log every step for auditability
+- [x] Build the planner, tool executor, critic, and safety gate
+- [x] Add multi-agent specialists (cardiology, neurology, pharmacology) coordinated by an orchestrator
+- [x] Add memory: patient context within a session, consented long-term memory
+- [x] Log every step for auditability
 
 **Output:** `agents/` with planner, tools, critic, orchestrator
 
@@ -107,12 +109,12 @@ Patient/Clinician input
 
 ## Phase 5 — Safety, Ethics & Guardrails (runs alongside Phases 3–6)
 
-- [ ] Emergency detection (chest pain, stroke signs, suicidal ideation) → immediate escalation message
-- [ ] Mandatory disclaimer and "see a doctor" logic by severity
-- [ ] Hallucination checks: every medical claim must trace to a retrieved source
-- [ ] Bias testing across age, gender, ethnicity
-- [ ] Privacy: de-identification, encryption, no training on user data without consent
-- [ ] Human-in-the-loop review for high-risk outputs
+- [x] Emergency detection (chest pain, stroke signs, suicidal ideation) → immediate escalation message
+- [x] Mandatory disclaimer and "see a doctor" logic by severity
+- [x] Hallucination checks: every medical claim must trace to a retrieved source
+- [x] Bias testing across age, gender, ethnicity
+- [~] Privacy: de-identification, encryption, no training on user data without consent (redaction + consent built; encryption at rest is a deployment task)
+- [x] Human-in-the-loop review for high-risk outputs
 
 **Output:** `safety/` rules, red-team test suite
 
@@ -120,11 +122,11 @@ Patient/Clinician input
 
 ## Phase 6 — Evaluation
 
-- [ ] Benchmarks: MedQA, MedMCQA, PubMedQA, MMLU-medical
-- [ ] Clinician review panel scoring real-style cases
-- [ ] Red-teaming for dangerous advice
-- [ ] Track: accuracy, citation faithfulness, refusal quality, empathy score
-- [ ] Set pass thresholds before moving on
+- [~] Benchmarks: MedQA, MedMCQA, PubMedQA, MMLU-medical (runner built: `python -m eval benchmark --file <licensed.jsonl>`; not yet run)
+- [~] Clinician review panel scoring real-style cases (export/score tooling built; panel not yet convened)
+- [x] Red-teaming for dangerous advice
+- [x] Track: accuracy, citation faithfulness, refusal quality, empathy score
+- [x] Set pass thresholds before moving on
 
 **Output:** `eval/` harness, report
 
@@ -132,16 +134,18 @@ Patient/Clinician input
 
 ## Phase 7 — Interface
 
-- [ ] Chat UI (web first), voice later
-- [ ] Show citations and confidence on each answer
-- [ ] "Explain like I'm a patient" / "clinician mode" toggle
-- [ ] Multilingual support
+- [x] Chat UI (web first), voice later
+- [x] Show citations and confidence on each answer
+- [x] "Explain like I'm a patient" / "clinician mode" toggle
+- [x] Multilingual support
 
 **Output:** `app/`
 
 ---
 
 ## Phase 8 — Pilot & Iterate
+
+Plan and tooling: `docs/pilot-plan.md` (feedback capture, review queue, re-eval loop).
 
 - [ ] Closed pilot with clinicians
 - [ ] Collect feedback and failure cases
@@ -180,9 +184,9 @@ AESCULAP-ASI/
 ## Milestone Checklist
 
 - [ ] M1: Persona + safety policy approved
-- [ ] M2: Knowledge base searchable with citations
-- [ ] M3: Single agent answers medical questions with sources
-- [ ] M4: Multi-agent system with critic and safety gate
+- [x] M2: Knowledge base searchable with citations
+- [x] M3: Single agent answers medical questions with sources
+- [x] M4: Multi-agent system with critic and safety gate
 - [ ] M5: Benchmarks passed + clinician review
 - [ ] M6: Pilot launched
 

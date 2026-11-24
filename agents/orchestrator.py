@@ -126,7 +126,9 @@ class Orchestrator:
     def handle(self, req: ChatRequest) -> ChatResponse:
         trace = uuid.uuid4().hex[:16]
         mode = normalise_mode(req.mode)
-        self.audit.log(trace, "input", {"message": req.message, "mode": mode, "session": req.session_id})
+        self.audit.log(
+            trace, "input", {"message": req.message, "mode": mode, "session": req.session_id}
+        )
 
         # 1. Triage: emergencies interrupt everything (policy 3.1).
         risk = assess_risk(req.message)
@@ -183,7 +185,9 @@ class Orchestrator:
         if risk.scope.non_medical:
             return self._finish(
                 req,
-                ChatResponse(risk.scope.message(), Decision.ALLOW.value, risk.tier.label, mode, trace),
+                ChatResponse(
+                    risk.scope.message(), Decision.ALLOW.value, risk.tier.label, mode, trace
+                ),
             )
         if risk.scope.areas:
             notices.append(risk.scope.message())
@@ -204,7 +208,10 @@ class Orchestrator:
         self.audit.log(
             trace,
             "retrieval",
-            {"queries": queries, "chunks": [(e["id"], e.get("chunk_id"), e["score"]) for e in evidence]},
+            {
+                "queries": queries,
+                "chunks": [(e["id"], e.get("chunk_id"), e["score"]) for e in evidence],
+            },
         )
 
         # 6. Reason -> critic -> revise.
@@ -264,8 +271,12 @@ class Orchestrator:
         self.audit.log(
             trace,
             "gate",
-            {"decision": gate.decision.value, "violations": gate.violations,
-             "warnings": gate.warnings, "faithfulness": gate.faithfulness},
+            {
+                "decision": gate.decision.value,
+                "violations": gate.violations,
+                "warnings": gate.warnings,
+                "faithfulness": gate.faithfulness,
+            },
         )
 
         cited = set(cited_ids(gate.text))
@@ -286,7 +297,9 @@ class Orchestrator:
             )
 
         if req.user_id and req.consent_memory:
-            keep = {k: ctx[k] for k in ("age", "sex", "allergies", "medications") if k in ctx}
+            keep: dict[str, Any] = {
+                k: ctx[k] for k in ("age", "sex", "allergies", "medications") if k in ctx
+            }
             self.long_term.remember(req.user_id, keep, consent=True)
 
         return self._finish(
@@ -299,8 +312,20 @@ class Orchestrator:
                 trace_id=trace,
                 confidence=result.confidence.level,
                 citations=[
-                    {k: e.get(k) for k in ("id", "chunk_id", "title", "source", "url", "date",
-                                            "evidence_level", "score", "text")}
+                    {
+                        k: e.get(k)
+                        for k in (
+                            "id",
+                            "chunk_id",
+                            "title",
+                            "source",
+                            "url",
+                            "date",
+                            "evidence_level",
+                            "score",
+                            "text",
+                        )
+                    }
                     for e in citations
                 ],
                 tool_results=tool_results,

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aesculap</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">⚕</span>
+      <div>
+        <h1>Aesculap</h1>
+        <p class="tag" data-i18n="tagline">Clinical decision support. Not a doctor.</p>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="seg" role="radiogroup" aria-label="Audience mode">
+        <button type="button" class="seg-btn active" data-mode="patient" role="radio" aria-checked="true" data-i18n="patient">Patient</button>
+        <button type="button" class="seg-btn" data-mode="clinician" role="radio" aria-checked="false" data-i18n="clinician">Clinician</button>
+      </div>
+      <label class="field">
+        <span data-i18n="language">Language</span>
+        <select id="language">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="pt">Português</option>
+          <option value="si">සිංහල</option>
+          <option value="ta">தமிழ்</option>
+          <option value="hi">हिन्दी</option>
+        </select>
+      </label>
+      <label class="field">
+        <span data-i18n="emergency">Emergency no.</span>
+        <input id="locale" placeholder="e.g. 911, 112, 1990" maxlength="40">
+      </label>
+    </div>
+  </header>
+
+  <div class="banner" role="note" data-i18n="banner">
+    If you may be having a medical emergency, call your local emergency number now. Aesculap does not give diagnoses or prescriptions.
+  </div>
+
+  <main id="chat" aria-live="polite">
+    <div class="welcome">
+      <h2 data-i18n="welcome_title">How can I help?</h2>
+      <p data-i18n="welcome_body">Ask a health question. Answers are drawn from published sources, with citations and a confidence level. A clinician makes the decisions.</p>
+      <div class="examples">
+        <button type="button" class="example">What are the cautions with naproxen in kidney problems?</button>
+        <button type="button" class="example">I've had a dry cough for 5 days. What could it be?</button>
+        <button type="button" class="example">65 year old male, creatinine 1.4 mg/dl, on lisinopril: renal cautions?</button>
+      </div>
+    </div>
+  </main>
+
+  <form id="composer" autocomplete="off">
+    <textarea id="message" rows="2" maxlength="4000" required data-i18n-placeholder="placeholder" placeholder="Describe the question or case…"></textarea>
+    <button type="submit" id="send" data-i18n="send">Send</button>
+  </form>
+
+  <template id="tpl-assistant">
+    <article class="msg assistant">
+      <div class="meta"></div>
+      <div class="body"></div>
+      <details class="cites"><summary></summary><ol></ol></details>
+      <details class="tools"><summary data-i18n="calculations">Calculations</summary><ul></ul></details>
+      <div class="feedback">
+        <span data-i18n="helpful">Was this helpful?</span>
+        <button type="button" data-rating="5" aria-label="Helpful">👍</button>
+        <button type="button" data-rating="2" aria-label="Not helpful">👎</button>
+        <select class="ftype" aria-label="Problem type">
+          <option value="none">—</option>
+          <option value="wrong">Incorrect</option>
+          <option value="unsafe">Unsafe</option>
+          <option value="missing_red_flag">Missed red flag</option>
+          <option value="bad_citation">Bad citation</option>
+          <option value="unclear">Unclear</option>
+          <option value="tone">Tone</option>
+        </select>
+        <span class="thanks" hidden data-i18n="thanks">Thanks, recorded.</span>
+      </div>
+    </article>
+  </template>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

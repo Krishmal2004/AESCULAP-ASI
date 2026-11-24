@@ -92,7 +92,11 @@ def cha2ds2_vasc(
     score = (
         (2 if a >= 75 else 1 if a >= 65 else 0)
         + (1 if str(sex).lower().startswith("f") else 0)
-        + int(chf) + int(hypertension) + int(diabetes) + int(vascular) + (2 if stroke_tia else 0)
+        + int(chf)
+        + int(hypertension)
+        + int(diabetes)
+        + int(vascular)
+        + (2 if stroke_tia else 0)
     )
     return {
         "tool": "cha2ds2_vasc",
@@ -116,7 +120,9 @@ def curb65(
     score += int(urea_mmol_l is not None and urea_mmol_l > 7)
     score += int(resp_rate is not None and resp_rate >= 30)
     score += int((sbp is not None and sbp < 90) or (dbp is not None and dbp <= 60))
-    missing = [n for n, v in (("urea", urea_mmol_l), ("resp_rate", resp_rate), ("bp", sbp)) if v is None]
+    missing = [
+        n for n, v in (("urea", urea_mmol_l), ("resp_rate", resp_rate), ("bp", sbp)) if v is None
+    ]
     note = f"; missing {', '.join(missing)} so score may be underestimated" if missing else ""
     return {
         "tool": "curb65",
@@ -171,12 +177,17 @@ def drug_interaction_check(retriever: Retriever, drugs: list[str]) -> dict[str, 
         for b in names[i + 1 :]:
             hits = retriever(f"drug interactions {a} {b}", k=8)
             both = [
-                h for h in hits
+                h
+                for h in hits
                 if re.search(rf"\b{re.escape(a)}\b", h["text"], re.I)
                 and re.search(rf"\b{re.escape(b)}\b", h["text"], re.I)
             ]
             pairs.append(
-                {"pair": [a, b], "evidence_chunks": [h["chunk_id"] for h in both], "found": bool(both)}
+                {
+                    "pair": [a, b],
+                    "evidence_chunks": [h["chunk_id"] for h in both],
+                    "found": bool(both),
+                }
             )
     found = [p for p in pairs if p["found"]]
     summary = (

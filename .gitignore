@@ -22,3 +22,7 @@ knowledge/data/
 Thumbs.db
 .idea/
 .vscode/
+
+# App runtime data (audit log, review queue, feedback, consented memory) and eval output.
+app_data/
+eval/reports/
